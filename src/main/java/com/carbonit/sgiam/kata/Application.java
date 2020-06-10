@@ -1,4 +1,4 @@
-package com.carbonit.sgiam_kata;
+package com.carbonit.sgiam.kata;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

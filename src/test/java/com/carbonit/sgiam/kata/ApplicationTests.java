@@ -1,4 +1,4 @@
-package com.carbonit.sgiam_kata;
+package com.carbonit.sgiam.kata;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
