@@ -22,13 +22,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.data.domain.PageRequest.of;
 
 @ExtendWith(MockitoExtension.class)
-public class UsersServiceTests {
+public class UsersServiceImplTests {
 
     @Mock
     private UsersRepository repository;
 
     @InjectMocks
-    private UsersService service;
+    private UsersServiceImpl service;
 
     private final UserDTO userDTO1 = createUserDTO(USER_ID_1, USER_NAME_1);
     private final UserDTO userDTO2 = createUserDTO(USER_ID_2, USER_NAME_2);

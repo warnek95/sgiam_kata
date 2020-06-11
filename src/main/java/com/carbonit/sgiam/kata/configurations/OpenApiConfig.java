@@ -9,11 +9,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${project.version}")
-    private String appVersion;
-
     @Bean
-    public OpenAPI customOpenAPI() {
+    public OpenAPI customOpenAPI(@Value("${project.version}") String appVersion) {
         return new OpenAPI().info(new Info().title("Users API").version(appVersion)
             .description("This is a java project for the SG/IAM interview process."));
     }

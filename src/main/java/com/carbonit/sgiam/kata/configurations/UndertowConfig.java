@@ -9,14 +9,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class UndertowConfig {
 
-    @Value("${server.http.port}")
-    private int httpPort;
-
-    @Value("${server.http.interface}")
-    private String httpInterface;
-
     @Bean
-    public WebServerFactoryCustomizer<UndertowServletWebServerFactory> containerCustomizer() {
+    public WebServerFactoryCustomizer<UndertowServletWebServerFactory> containerCustomizer(
+            @Value("${server.http.port}") final int httpPort, @Value("${server.http.interface}") final String httpInterface) {
         return factory -> factory.getBuilderCustomizers()
             .add(builder -> builder.addHttpListener(httpPort, httpInterface));
     }
