@@ -9,47 +9,32 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
 import static com.carbonit.sgiam.kata.exceptions.UserNotFoundException.USER_NOT_FOUND_MSG;
+import static com.carbonit.sgiam.kata.utils.UserUtils.*;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.data.domain.PageRequest.of;
 
-@WebMvcTest(UsersController.class)
+@ExtendWith(SpringExtension.class)
 public class UsersControllerTests {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     
     @MockBean
     private UsersService usersService;
-    
-    private static final String USER_NAME_1 = "user_name";
-    private static final String USER_NAME_2 = "friendly_user";
-    private static final String UPDATE_USER_NAME = "new_name";
-    private static final String INVALID_NAME = "admin";
-    private static final String USER_ID_1 = "eed93d8f-e053-4d75-af63-060f1f8f92d7";
-    private static final String USER_ID_2 = "865fdcc4-cd19-4ab9-9f2b-5309a32c8e9e";
-    private static final String INVALID_ID = "invalid_id";
-    private static final String NON_EXISTING_ID = "c182c9ba-304c-4290-8be5-1cf46045b474";
-    
-    private final UserDTO user1 = createUser(USER_ID_1, USER_NAME_1);
-    private final UserDTO user2 = createUser(USER_ID_2, USER_NAME_2);
 
-    private UserDTO createUser(String id, String name) {
-        UserDTO user = new UserDTO();
-        user.setId(UUID.fromString(id));
-        user.setName(name);
-        return user;
-    }
+    private final UserDTO user1 = createUserDTO(USER_ID_1, USER_NAME_1);
+    private final UserDTO user2 = createUserDTO(USER_ID_2, USER_NAME_2);
 
     /*********************** getAll ***********************/
     
@@ -67,7 +52,7 @@ public class UsersControllerTests {
                 .extract()
                 .as(UserDTO[].class);
 
-        assertEquals(users.length, 2);
+        assertEquals(2, users.length);
         assertTrue(Arrays.stream(users).anyMatch(user ->
             user.getName().equals(USER_NAME_1) && user.getId().toString().equals(USER_ID_1)
         ));
@@ -90,14 +75,14 @@ public class UsersControllerTests {
                 .extract()
                 .as(UserDTO[].class);
 
-        assertEquals(users.length, 0);
+        assertEquals(0, users.length);
     }
 
     /*********************** getUserById ***********************/
 
     @DisplayName("As a user I can get a specific User by id")
     @Test
-    void getUserById() {
+    void getUserById() throws UserNotFoundException {
         BDDMockito.given(usersService.findUserById(UUID.fromString(USER_ID_1))).willReturn(user1);
 
         UserDTO user =
@@ -109,8 +94,8 @@ public class UsersControllerTests {
                 .extract()
                 .as(UserDTO.class);
 
-        assertEquals(user.getId().toString(), USER_ID_1);
-        assertEquals(user.getName(), USER_NAME_1);
+        assertEquals(USER_ID_1, user.getId().toString());
+        assertEquals(USER_NAME_1, user.getName());
     }
 
     @DisplayName("As a user I cannot get a user with an invalid id")
@@ -131,7 +116,7 @@ public class UsersControllerTests {
 
     @DisplayName("As a user I cannot get a user when I give a non existing id")
     @Test
-    void getUserByIdWithANonExistingId() {
+    void getUserByIdWithANonExistingId() throws UserNotFoundException {
         BDDMockito.given(usersService.findUserById(UUID.fromString(NON_EXISTING_ID))).willThrow(new UserNotFoundException(NON_EXISTING_ID));
 
         ErrorResponseDTO error =
@@ -162,9 +147,9 @@ public class UsersControllerTests {
                 .extract()
                 .as(UserDTO[].class);
 
-        assertEquals(users.length, 1);
-        assertEquals(users[0].getId().toString(), USER_ID_1);
-        assertEquals(users[0].getName(), USER_NAME_1);
+        assertEquals(1, users.length);
+        assertEquals(USER_ID_1, users[0].getId().toString());
+        assertEquals(USER_NAME_1, users[0].getName());
     }
 
     @DisplayName("As a user I get no users when no user satisfy the filter")
@@ -189,9 +174,8 @@ public class UsersControllerTests {
     @DisplayName("As a user I can create a user")
     @Test
     void postUser() throws JsonProcessingException {
-        UserDTO u = new UserDTO();
-        u.setName(USER_NAME_1);
-        BDDMockito.given(usersService.createUser(u)).willReturn(user1);
+        UserDTO mockedUser = createUserDTO(null, USER_NAME_1);
+        BDDMockito.given(usersService.createUser(mockedUser)).willReturn(user1);
 
         Map<String, String> request = new HashMap<>();
         request.put("name", USER_NAME_1);
@@ -207,8 +191,8 @@ public class UsersControllerTests {
                 .extract()
                 .as(UserDTO.class);
 
-        assertEquals(user.getId().toString(), USER_ID_1);
-        assertEquals(user.getName(), USER_NAME_1);
+        assertEquals(USER_ID_1, user.getId().toString());
+        assertEquals(USER_NAME_1, user.getName());
     }
 
     @DisplayName("As a user I cannot create a user with an invalid name")
@@ -236,11 +220,9 @@ public class UsersControllerTests {
 
     @DisplayName("As a user I can update a user")
     @Test
-    void putUser() throws JsonProcessingException {
-        UserDTO u = new UserDTO();
-        u.setId(UUID.fromString(USER_ID_1));
-        u.setName(UPDATE_USER_NAME);
-        BDDMockito.given(usersService.updateUser(UUID.fromString(USER_ID_1), u)).willReturn(u);
+    void putUser() throws JsonProcessingException, UserNotFoundException {
+        UserDTO mockedUser = createUserDTO(USER_ID_1, UPDATE_USER_NAME);
+        BDDMockito.given(usersService.updateUser(UUID.fromString(USER_ID_1), mockedUser)).willReturn(mockedUser);
 
         Map<String, String> request = new HashMap<>();
         request.put("id", USER_ID_1);
@@ -257,8 +239,8 @@ public class UsersControllerTests {
                 .extract()
                 .as(UserDTO.class);
 
-        assertEquals(user.getId().toString(), USER_ID_1);
-        assertEquals(user.getName(), UPDATE_USER_NAME);
+        assertEquals(USER_ID_1, user.getId().toString());
+        assertEquals(UPDATE_USER_NAME, user.getName());
     }
 
     @DisplayName("As a user I cannot update a user with an invalid name")
@@ -285,11 +267,9 @@ public class UsersControllerTests {
 
     @DisplayName("As a user I cannot update a user with a non existing id")
     @Test
-    void putUserByIdWithANonExistingId() throws JsonProcessingException {
-        UserDTO u = new UserDTO();
-        u.setId(UUID.fromString(NON_EXISTING_ID));
-        u.setName(UPDATE_USER_NAME);
-        BDDMockito.given(usersService.updateUser(UUID.fromString(NON_EXISTING_ID), u)).willThrow(new UserNotFoundException(NON_EXISTING_ID));
+    void putUserByIdWithANonExistingId() throws JsonProcessingException, UserNotFoundException {
+        UserDTO mockedUser = createUserDTO(NON_EXISTING_ID, UPDATE_USER_NAME);
+        BDDMockito.given(usersService.updateUser(UUID.fromString(NON_EXISTING_ID), mockedUser)).willThrow(new UserNotFoundException(NON_EXISTING_ID));
 
         Map<String, String> request = new HashMap<>();
         request.put("id", NON_EXISTING_ID);
@@ -313,19 +293,22 @@ public class UsersControllerTests {
 
     @DisplayName("As a user I can delete a user")
     @Test
-    void deleteUser() {
-        BDDMockito.given(usersService.deleteUser(UUID.fromString(USER_ID_1))).willReturn(UUID.fromString(USER_ID_1));
+    void deleteUser() throws UserNotFoundException {
+        UserDTO mockedUser = createUserDTO(USER_ID_1, null);
+        
+        BDDMockito.given(usersService.deleteUser(UUID.fromString(USER_ID_1))).willReturn(mockedUser);
 
-        UUID uuid =
+        UserDTO user =
             given()
                 .standaloneSetup(new UsersController(usersService), new UsersControllerAdvice())
             .when()
                 .delete(String.format("/api/v1/users/%s", USER_ID_1))
                 .then().statusCode(HttpStatus.OK.value())
                 .extract()
-                .as(UUID.class);
+                .as(UserDTO.class);
 
-        assertEquals(uuid.toString(), USER_ID_1);
+        assertEquals(USER_ID_1, user.getId().toString());
+        assertNull(user.getName());
     }
 
     @DisplayName("As a user I cannot delete a user with an invalid id")
@@ -346,7 +329,7 @@ public class UsersControllerTests {
 
     @DisplayName("As a user I cannot delete a user with a non existing id")
     @Test
-    void deleteUserByIdWithANonExistingId() {
+    void deleteUserByIdWithANonExistingId() throws UserNotFoundException {
         BDDMockito.given(usersService.deleteUser(UUID.fromString(NON_EXISTING_ID))).willThrow(new UserNotFoundException(NON_EXISTING_ID));
 
         ErrorResponseDTO error =

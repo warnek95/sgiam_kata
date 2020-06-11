@@ -1,8 +1,11 @@
 package com.carbonit.sgiam.kata.services;
 
 import com.carbonit.sgiam.kata.dtos.UserDTO;
+import com.carbonit.sgiam.kata.exceptions.UserNotFoundException;
+import com.carbonit.sgiam.kata.mappers.UserMapper;
+import com.carbonit.sgiam.kata.models.User;
+import com.carbonit.sgiam.kata.repositories.UsersRepository;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -13,27 +16,49 @@ import java.util.UUID;
 @Service
 public class UsersService {
 
-    public UserDTO createUser(final UserDTO userDTO) {
-        return null;
+    private final UsersRepository repository;
+    private final UserMapper userMapper;
+
+    UsersService(UsersRepository repository, UserMapper userMapper){
+        this.repository = repository;
+        this.userMapper = userMapper;
     }
 
-    public UserDTO findUserById(final UUID id) {
-        return null;
+    public UserDTO createUser(final UserDTO userDTO) {
+        return userMapper.toDto(repository.save(userMapper.toEntity(userDTO)));
+    }
+
+    public UserDTO findUserById(final UUID id) throws UserNotFoundException {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id.toString()));
+        return userMapper.toDto(user);
     }
 
     public List<UserDTO> findAllUsers() {
-        return new ArrayList<>();
+        List<UserDTO> userDTOs = new ArrayList<>();
+        repository.findAll().forEach(user -> userDTOs.add(userMapper.toDto(user)));
+        return userDTOs;
     }
 
     public Page<UserDTO> filterUsers(Pageable pageable) {
-        return new PageImpl(new ArrayList());
+        return repository.findAll(pageable).map(userMapper::toDto);
     }
 
-    public UserDTO updateUser(final UUID id, final UserDTO userDTO) {
-        return null;
+    public UserDTO updateUser(final UUID id, final UserDTO userDTO) throws UserNotFoundException {
+        return repository.findById(id)
+            .map(user -> {
+                user.setName(userDTO.getName());
+                return userMapper.toDto(repository.save(user));
+            })
+            .orElseThrow(() -> new UserNotFoundException(id.toString()));
     }
 
-    public UUID deleteUser(final UUID id) {
-        return null;
+    public UserDTO deleteUser(final UUID id) throws UserNotFoundException {
+        return repository.findById(id)
+            .map(user -> {
+                repository.delete(user);
+                return userMapper.fromId(id);
+            })
+            .orElseThrow(() -> new UserNotFoundException(id.toString()));
     }
 }

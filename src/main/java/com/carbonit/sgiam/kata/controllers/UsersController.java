@@ -2,6 +2,7 @@ package com.carbonit.sgiam.kata.controllers;
 
 import com.carbonit.sgiam.kata.dtos.UserDTO;
 import com.carbonit.sgiam.kata.exceptions.ParameterNotValidException;
+import com.carbonit.sgiam.kata.exceptions.UserNotFoundException;
 import com.carbonit.sgiam.kata.services.UsersService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -28,14 +29,14 @@ public class UsersController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDTO postUser(@RequestBody final UserDTO user) {
+    public UserDTO postUser(@RequestBody final UserDTO user) throws ParameterNotValidException {
         checkUserValidity(user);
         return service.createUser(user);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDTO getUserById(@PathVariable("id") final String idAsString) {
+    public UserDTO getUserById(@PathVariable("id") final String idAsString) throws UserNotFoundException, ParameterNotValidException {
         try {
             UUID id = UUID.fromString(idAsString);
             return service.findUserById(id);
@@ -61,7 +62,7 @@ public class UsersController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDTO updateUser(@PathVariable("id") final String idAsString, @RequestBody final UserDTO user) {
+    public UserDTO updateUser(@PathVariable("id") final String idAsString, @RequestBody final UserDTO user) throws UserNotFoundException, ParameterNotValidException {
         checkUserValidity(user);
         try {
             UUID id = UUID.fromString(idAsString);
@@ -71,13 +72,13 @@ public class UsersController {
         }
     }
 
-    private void checkUserValidity(UserDTO user) {
+    private void checkUserValidity(UserDTO user) throws ParameterNotValidException {
         if (user.getName().contains(ADMIN)) throw new ParameterNotValidException(NAME_CONTAINS_ADMIN, user.getName());
     }
 
     @DeleteMapping(value = "/{id}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public UUID deleteUser(@PathVariable("id") final String idAsString) {
+    public UserDTO deleteUser(@PathVariable("id") final String idAsString) throws UserNotFoundException, ParameterNotValidException {
         try {
             UUID id = UUID.fromString(idAsString);
             return service.deleteUser(id);
