@@ -22,6 +22,7 @@
 		<lombok-maven-plugin.version>1.18.12.0</lombok-maven-plugin.version>
 		<springdoc.version>1.2.32</springdoc.version>
 		<springdoc-openapi-maven-plugin.version>0.2</springdoc-openapi-maven-plugin.version>
+		<hibernate-validator.version>6.1.0.Final</hibernate-validator.version>
 	</properties>
 
 	<dependencies>
@@ -93,6 +94,12 @@
 			<groupId>io.rest-assured</groupId>
 			<artifactId>spring-mock-mvc</artifactId>
 			<version>${rest-assured.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate-validator.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

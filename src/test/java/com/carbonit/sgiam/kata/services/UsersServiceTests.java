@@ -2,42 +2,39 @@ package com.carbonit.sgiam.kata.services;
 
 import com.carbonit.sgiam.kata.dtos.UserDTO;
 import com.carbonit.sgiam.kata.exceptions.UserNotFoundException;
-import com.carbonit.sgiam.kata.mappers.UserMapper;
-import com.carbonit.sgiam.kata.mappers.UserMapperImpl;
 import com.carbonit.sgiam.kata.models.User;
 import com.carbonit.sgiam.kata.repositories.UsersRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.BDDMockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
 
 import static com.carbonit.sgiam.kata.utils.UserUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 import static org.springframework.data.domain.PageRequest.of;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class UsersServiceTests {
 
+    @Mock
     private UsersRepository repository;
 
+    @InjectMocks
     private UsersService service;
+
+    private final UserDTO userDTO1 = createUserDTO(USER_ID_1, USER_NAME_1);
+    private final UserDTO userDTO2 = createUserDTO(USER_ID_2, USER_NAME_2);
 
     private final User user1 = createUserEntity(USER_ID_1, USER_NAME_1);
     private final User user2 = createUserEntity(USER_ID_2, USER_NAME_2);
-
-    @BeforeEach
-    void setUp(){
-        repository = mock(UsersRepository.class);
-        service = new UsersService(repository);
-    }
 
     /*********************** findAll ***********************/
 
@@ -49,12 +46,8 @@ public class UsersServiceTests {
         List<UserDTO> users = service.findAllUsers();
 
         assertEquals(2, users.size());
-        assertTrue(users.stream().anyMatch(user ->
-                user.getName().equals(USER_NAME_1) && user.getId().toString().equals(USER_ID_1)
-        ));
-        assertTrue(users.stream().anyMatch(user ->
-                user.getName().equals(USER_NAME_2) && user.getId().toString().equals(USER_ID_2)
-        ));
+        assertEquals(userDTO1, users.get(0));
+        assertEquals(userDTO2, users.get(1));
     }
 
     @DisplayName("As a user I get an empty list when there are no users to get")

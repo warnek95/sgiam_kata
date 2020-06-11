@@ -1,0 +1,32 @@
+version: '3.4'
+services:
+  sgiam_kata_db:
+    container_name: sgiam_kata_db
+    image: mariadb:10.2
+    environment:
+      MYSQL_ROOT_PASSWORD: fPzC1cCcqd#~s&j
+      MYSQL_DATABASE: sgiam_kata
+      MYSQL_USER: sgiam_kata_user
+      MYSQL_PASSWORD: s3ZU(Jf6J3ocjLW
+    networks:
+      - backend
+    restart: on-failure
+    volumes:
+      - ${PWD}/mariadb:/var/lib/mysql
+
+  sgiam_kata_api:
+    container_name: sgiam_kata_api
+    image: carbon/sgiam_kata:latest
+    networks:
+      - backend
+      - frontend
+    ports:
+      - '8080:8080'
+      - '8443:8443'
+    restart: on-failure
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge

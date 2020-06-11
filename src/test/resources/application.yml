@@ -1,0 +1,21 @@
+project:
+  version: "@project.version@"
+
+# mariaDB related configurations
+spring:
+  datasource:
+    url: jdbc:h2:mem:springdoc
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+#https related configurations
+server:
+  http:
+    interface: 0.0.0.0
+    port: 8888
+  port: 8889
+  ssl:
+    key-store: classpath:sgiam_kata.p12
+    key-store-password: sgiam_kata
+    keyStoreType: PKCS12

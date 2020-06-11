@@ -2,9 +2,7 @@ package com.carbonit.sgiam.kata.filters;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -15,7 +13,6 @@ import java.io.IOException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@ExtendWith(SpringExtension.class)
 public class RedirectToHttpsFilterTests {
 
     @DisplayName("Redirect the request to https when it is an http request")

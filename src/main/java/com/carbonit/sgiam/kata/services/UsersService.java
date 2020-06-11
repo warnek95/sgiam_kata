@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static java.util.stream.StreamSupport.stream;
 
 @Service
 public class UsersService {
@@ -35,9 +38,9 @@ public class UsersService {
     }
 
     public List<UserDTO> findAllUsers() {
-        List<UserDTO> userDTOs = new ArrayList<>();
-        repository.findAll().forEach(user -> userDTOs.add(userMapper.toDto(user)));
-        return userDTOs;
+        return stream(repository.findAll().spliterator(), false)
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     public Page<UserDTO> filterUsers(Pageable pageable) {
