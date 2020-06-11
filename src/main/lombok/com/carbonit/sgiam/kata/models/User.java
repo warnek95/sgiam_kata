@@ -2,10 +2,10 @@ package com.carbonit.sgiam.kata.models;
 
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.data.annotation.Id;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.UUID;
 

@@ -28,12 +28,7 @@ public class UsersServiceTests {
 
     private UsersRepository repository;
 
-    private UserMapper mapper = new UserMapperImpl();
-
     private UsersService service;
-
-    private final UserDTO userDTO1 = createUserDTO(USER_ID_1, USER_NAME_1);
-    private final UserDTO userDTO2 = createUserDTO(USER_ID_2, USER_NAME_2);
 
     private final User user1 = createUserEntity(USER_ID_1, USER_NAME_1);
     private final User user2 = createUserEntity(USER_ID_2, USER_NAME_2);
@@ -41,7 +36,7 @@ public class UsersServiceTests {
     @BeforeEach
     void setUp(){
         repository = mock(UsersRepository.class);
-        service = new UsersService(repository, mapper);
+        service = new UsersService(repository);
     }
 
     /*********************** findAll ***********************/

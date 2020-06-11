@@ -3,6 +3,7 @@ package com.carbonit.sgiam.kata.services;
 import com.carbonit.sgiam.kata.dtos.UserDTO;
 import com.carbonit.sgiam.kata.exceptions.UserNotFoundException;
 import com.carbonit.sgiam.kata.mappers.UserMapper;
+import com.carbonit.sgiam.kata.mappers.UserMapperImpl;
 import com.carbonit.sgiam.kata.models.User;
 import com.carbonit.sgiam.kata.repositories.UsersRepository;
 import org.springframework.data.domain.Page;
@@ -17,11 +18,10 @@ import java.util.UUID;
 public class UsersService {
 
     private final UsersRepository repository;
-    private final UserMapper userMapper;
+    private final UserMapper userMapper = new UserMapperImpl();
 
-    UsersService(UsersRepository repository, UserMapper userMapper){
+    UsersService(UsersRepository repository){
         this.repository = repository;
-        this.userMapper = userMapper;
     }
 
     public UserDTO createUser(final UserDTO userDTO) {
